@@ -9,14 +9,12 @@ my @sacks = cache open('day03/input.txt')
     .map(*.trans('a'..'z' => 1.chr..26.chr, 'A'..'Z' => 27.chr..52.chr).ords)
     ;
 
-say "A: ", sum flat list @sacks
+say "A: ", sum @sacks
     .map({ $_[0..* div 2 - 1], $_[* div 2..* - 1] })
-    .map({ [(+)] $_>>.unique })
-    .map(*.max(*.value).key)
-    ;
+    .map(*>>.unique.reduce: &infix:<(+)>)
+    .map: *.max(*.value).key;
 
-say "B: ", sum flat list @sacks
+say "B: ", sum @sacks
     .map(*.unique)
     .map(* (+) * (+) *)
-    .map(*.max(*.value).key)
-    ;
+    .map: *.max(*.value).key;
