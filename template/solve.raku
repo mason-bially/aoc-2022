@@ -1,12 +1,16 @@
 use v6;
 
-# .words # spread on whitespace into array
-# .split # split on string into tuple
+# timing 
+#say now - INIT now;
 
-my $file = open 'input.txt';
-#my $first = $file.get
+my @lines = cache open('dayXX/input.txt')
+    .map()
+    ;
 
-for $file.lines -> $line {
-    #my ($head, $tail) = $line.split('');
+say "A: ", sum flat list @lines
+    .map()
+    ;
 
-}
+say "B: ", sum flat list @lines
+    .map()
+    ;

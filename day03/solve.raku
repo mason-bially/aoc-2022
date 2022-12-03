@@ -1,30 +1,20 @@
 use v6;
 
+# lesson learned: comb for characters
+# lesson learned: sum counts list sizes unless flattened
+# lesson learned: grep for filter
+
+
 my @sacks = cache open('day03/input.txt')
     .lines
-    .map(-> $line {
-        # lesson learned: comb for characters
-        $line.comb.map({
-            if ($_.ord <= 'Z'.ord) {
-                ($_.ord - 'A'.ord) + 27
-            } else {
-                ($_.ord - 'a'.ord) + 1
-            }
-        })
-    });
+    .map(*.trans('a'..'z' => 1.chr..26.chr, 'A'..'Z' => 27.chr..52.chr).ords)
+    ;
 
-# lesson learned: sum counts list sizes unless flattened
-say "A: ", sum @sacks.map(
-        -> @sack { 
-            my $size = @sack.elems;
-            @sack[0..$size/2-1], @sack[$size/2..*-1];
-    }).map(
-        -> (@a, @b) {
-            # lesson learned: grep for filter
-            (@a X @b).grep(-> ($a, $b) {$a == $b}).map(*.head).unique
-    }).list.flat;
+say "A: ", sum flat list @sacks
+    .map({ @^s[0..* div 2 - 1], @^s[* div 2..* - 1] })
+    .map({ cross(@^p).flat.grep(* == *).map(*.head).unique })
+    ;
 
-say "B: ", sum @sacks.map(
-        -> @a, @b, @c {
-            (@a X @b X @c).grep(-> ($a, $b, $c) {$a == $b == $c}).map(*.head).unique
-    }).list.flat;
+say "B: ", sum flat list @sacks
+    .map((*<> X *<> X *<>).flat.grep(* == * == *).map(*.head).unique)
+    ;
