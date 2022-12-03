@@ -1,8 +1,5 @@
 use v6;
 
-# .words # spread on whitespace into array
-# .split # split on string into tuple
-
 my $file = open 'day02/input.txt';
 my $score = 0;
 
