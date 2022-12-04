@@ -7,13 +7,13 @@ use v6;
 # lesson learned: @arr[*;*] flattens one layer
 
 my @pairs = cache open('day04/input').lines
-    .map(|*.split(',').map(*.split('-').map(*.Int).map({ $^a..$^b }).first))
+    .map(|*.split(',').map(|*.split('-').map(*.Int).map({ $^a..$^b })))
     ;
 
-say "A: ", sum @pairs
-    .map({ $^a ~~ $^b || $^b ~~ $^a })
+say "A: ", elems @pairs
+    .grep({ $^a ~~ $^b || $^b ~~ $^a })
     ;
 
-say "B: ", sum @pairs
-    .map({ $^a.max ~~ $^b || $^a.min ~~ $^b || $^b.max ~~ $^a || $^b.min ~~ $^a })
+say "B: ", elems @pairs
+    .grep({ $^a ∩ $^b })
     ;
