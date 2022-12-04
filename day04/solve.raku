@@ -7,7 +7,7 @@ use v6;
 # lesson learned: @arr[*;*] flattens one layer
 
 my @pairs = cache open('day04/input').lines
-    .map(|*.split(',').map(|*.split('-').map(*.Int).map({ $^a..$^b })))
+    .map(|*.split(< - , >)>>.Int.map({ $^a..$^b }))
     ;
 
 say "A: ", elems @pairs
