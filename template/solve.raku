@@ -3,7 +3,7 @@ use v6;
 # timing 
 #say now - INIT now;
 
-my @lines = cache open('dayXX/input.txt')
+my @lines = cache open('dayXX/input')
     .map()
     ;
 
