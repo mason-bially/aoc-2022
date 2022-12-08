@@ -1,4 +1,5 @@
 use v6;
+use lib $*PROGRAM.parent.resolve.dirname;
 
 # timing 
 #say now - INIT now;
