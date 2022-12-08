@@ -1,9 +1,6 @@
 use v6;
 use lib $*PROGRAM.parent.resolve.dirname;
 
-# timing 
-#say now - INIT now;
-
 my @f = cache open('day08/input').lines
     .map(*.comb.map(*.ord - '0'.ord)>>.Int.Array)
     .Array;
