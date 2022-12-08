@@ -3,20 +3,16 @@ use v6;
 my @cmds = cache open('day07/input').split('$');
 
 my %fs;
-my @cwd = ("/",);
-for @cmds.grep(*.defined) -> $seq {
-    my ($cmd, @res) = $seq.lines.list;
-    if !$cmd {
-        say $cmd, @res
-    } else {
-        $cmd = $cmd.Str;
-        if $cmd.starts-with(' cd ..') {
-            @cwd.pop()
-        } elsif $cmd.starts-with(' cd /') {
-            @cwd = ("/",);
-        } elsif $cmd.starts-with(' cd') {
-            @cwd.push($cmd.substr(4));
-        } elsif $cmd.starts-with(' ls') {
+my @cwd = ("",);
+for @cmds.grep(* ne "") -> $seq {
+    my ($cmd, @res) = $seq.trim.lines.list;
+    given $cmd {
+        when 'cd ..' { @cwd.pop() };
+        when 'cd /' {  @cwd = ("",); }
+        when /'cd '(\w+)/ {
+            @cwd.push($cmd.substr(3));
+        }
+        when 'ls' {
             for @res -> $res {
                 if !$res.starts-with('dir') {
                     my $index;
@@ -26,15 +22,14 @@ for @cmds.grep(*.defined) -> $seq {
                     }
                 }
             }
-        } else {
-            say "unknown: ", $cmd;
         }
+        default { say "unknown: ", $_ }
     }
 }
 
 constant $max-space = 70000000;
 constant $req-space = 30000000;
-my $used-space = %fs{"//"};
+my $used-space = %fs{"/"};
 say "Used Space: ", $used-space;
 my $free-space = $max-space - $used-space;
 say "Free Space: ", $free-space;
