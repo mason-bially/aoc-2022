@@ -18,20 +18,17 @@ sub check-vis (@index, &test) {
     };                    return Pair.new($count - 1, True);
 }
 
-my $vis-count; my $high-senic;
-for 0..$max_y -> $y {
-    for 0..$max_x -> $x {
-        my $tree = @f[$y][$x].Int;
-        my @checks = [
-            (($y-1 ... 0),      { @f[$_][$x] < $tree }),
-            (($y+1 ... $max_y), { @f[$_][$x] < $tree }),
-            (($x-1 ... 0),      { @f[$y][$_] < $tree }),
-            (($x+1 ... $max_x), { @f[$y][$_] < $tree }),
-        ].map(-> (@r, $t) {check-vis(@r, $t)}).list;
-        $vis-count += 1 if ([||] @checks>>.value);
-        $high-senic max= [*] @checks>>.key;
-    }
-}
+my @res = cache (^$max_y X ^$max_x).race.map(-> ($y, $x) {
+    my $tree = @f[$y][$x].Int;
+    my @checks = [
+        (($y-1 ... 0),      { @f[$_][$x] < $tree }),
+        (($y+1 ... $max_y), { @f[$_][$x] < $tree }),
+        (($x-1 ... 0),      { @f[$y][$_] < $tree }),
+        (($x+1 ... $max_x), { @f[$y][$_] < $tree }),
+    ].map(-> (@r, $t) {check-vis(@r, $t)}).list;
+    Pair.new(([*] @checks>>.key), ([||] @checks>>.value))
+});
 
-say "A: ", $vis-count;
-say "B: ", $high-senic;
+say "A: ", @res>>.value.sum;
+say "B: ", @res>>.key.max;
+say now - INIT now;
