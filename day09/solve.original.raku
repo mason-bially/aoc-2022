@@ -55,7 +55,5 @@ for @moves -> ($dir, $amt) {
 }
 
 say "A: ", %visited1.elems;
-
 say "B: ", %visited9.elems;
-
 say now - INIT now;
