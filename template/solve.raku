@@ -1,16 +1,20 @@
 use v6;
 use lib $*PROGRAM.parent.resolve.dirname;
 
-my @lines = cache open('dayXX/input')
-    .map()
-    ;
+my @lines = cache open('dayXX/input').lines;
 
-say "A: ", sum flat list @lines
-    .map()
-    ;
+for @lines {
 
-say "B: ", sum flat list @lines
-    .map()
-    ;
+}
+
+my $part-a;
+my $part-b;
+
+for ^10 {
+
+}
+
+say "A: ", $part-a;
+say "B: ", $part-b;
 
 say now - INIT now;

@@ -1,11 +1,7 @@
 use v6;
 use lib $*PROGRAM.parent.resolve.dirname;
-use MONKEY-SEE-NO-EVAL;
 
 my @monk-listings = cache open('day11/input').split("\n\n");
-
-my $part-a;
-my $part-b;
 
 my %monks;
 class Monkey {
@@ -60,6 +56,7 @@ for @monk-listings {
 }
 
 say %monks;
+say $mod-cap;
 
 my %monkbus;
 my $count = 0;
@@ -79,10 +76,11 @@ while $count < 10000 {
         $monk.items = [];
     }
     $count += 1;
-    say $count if ($count mod 100 == 0);
+    say $count if ($count mod 1000 == 0);
 }
 
 my @bus = %monkbus.values.sort().reverse;
+say @bus;
 say "A: ", @bus[0] * @bus[1];
 
 
