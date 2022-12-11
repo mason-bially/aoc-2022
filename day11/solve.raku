@@ -5,6 +5,7 @@ my @monk-listings = cache open('day11/input').split("\n\n");
 
 my %monks;
 class Monkey {
+    has @.items-orig;
     has @.items;
     has &.op is rw;
     has &.test is rw;
@@ -18,7 +19,7 @@ for @monk-listings {
     for .lines {
         my ($key, $value) = .split(":")>>.trim;
         given $key {
-            when 'Starting items' { $monk.items = $value.split(", ")>>.Int }
+            when 'Starting items' { $monk.items-orig = $value.split(", ")>>.Int }
             when 'Test' { $test-mod = $value.substr(12).Int; }
             when 'If true' { $test-t = $value.substr(15).Int; }
             when 'If false' { $test-f = $value.substr(15).Int; }
@@ -27,15 +28,15 @@ for @monk-listings {
                 given @ops[2] {
                     when 'old' {
                         given @ops[1] {
-                            when "+" { $monk.op = -> Int $old { ($old + $old).narrow } }
-                            when "*" { $monk.op = -> Int $old { ($old * $old).narrow } }
+                            when "+" { $monk.op = -> $old { $old + $old } }
+                            when "*" { $monk.op = -> $old { $old * $old } }
                         }
                     }
                     when /(\d+)/ {
                         my $value = $0.Int;
                         given @ops[1] {
-                            when "+" { $monk.op = -> Int $old { ($old + $value).narrow } }
-                            when "*" { $monk.op = -> Int $old { ($old * $value).narrow } }
+                            when "+" { $monk.op = -> $old { $old + $value } }
+                            when "*" { $monk.op = -> $old { $old * $value } }
                         }
                     }
                 }
@@ -43,11 +44,7 @@ for @monk-listings {
         }
     }
     $monk.test = -> $worry {
-        if ($worry mod $test-mod) {
-            %monks{$test-f}.items.push($worry);
-        } else {
-            %monks{$test-t}.items.push($worry);
-        }
+        %monks{$worry mod $test-mod ?? $test-f !! $test-t}.items.push($worry)
     };
     $mod-cap *= $test-mod;
     %monks{$monk-index++} = $monk;
@@ -55,24 +52,27 @@ for @monk-listings {
 
 say $mod-cap;
 sub monkey-business($rounds, &worry-fix) {
+    for %monks.values {
+        .items = .items-orig.clone;
+    }
+
     my %monkbus; my $count = 0;
     while $count < $rounds {
         for ^%monks.elems {
             my $monk = %monks{$_};
             %monkbus{$_} += $monk.items.elems;
-            for $monk.items {
-                &($monk.test)(&worry-fix(&($monk.op)($_)));
+            for ^$monk.items.elems {
+                &($monk.test)(&worry-fix(&($monk.op)($monk.items[$_])));
             }
             $monk.items = [];
         }
         $count += 1;
     }
     my @bus = %monkbus.values.sort().reverse;
-    say @bus;
     @bus[0] * @bus[1];
 }
 
 say "A: ", monkey-business(20, { $^worry div 3 });
-say "B: ", monkey-business(10000, -> $worry { $worry mod $mod-cap });
+say "B: ", monkey-business(10000, { $^worry mod $mod-cap });
 
 say now - INIT now;

@@ -1,7 +1,16 @@
 use v6;
 
-my %test;
+my $mod = 1;
+my &op;
 
-%test{(1, 2)} = "hi";
+sub test ($i, &op, &bl) {
+    my $v = &op($i);
+    say "a: {&bl($v mod $mod)} != {&bl($v)}";
+    say "b: {&bl($v) mod $mod} != {&bl($v)}";
+}
 
-say %test;
+sub MAIN($num, $div) {
+    $mod = $div;
+    &op = { $_ * $_ };
+    test($num, &op, { $^worry mod $mod });
+}
