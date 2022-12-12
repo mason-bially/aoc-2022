@@ -40,28 +40,40 @@ sub neighbors ($y, $x) {
     return @n;
 }
 
-my @front = [($s-y, $s-x),];
-my %from = "{$s-y},{$s-x}" => "";
-my %dis = "{$s-y},{$s-x}" => 0;
-while @front.elems {
-    my ($cur-y, $cur-x) = @front.pop();
-    if $cur-y == $e-y && $cur-x == $e-x {
-        last;
-    }
+sub calc-dis-to-s($s-y, $s-x) {
+    my @front = [($s-y, $s-x),];
+    my %from = "{$s-y},{$s-x}" => "";
+    my %dis = "{$s-y},{$s-x}" => 0;
+    while @front.elems {
+        my ($cur-y, $cur-x) = @front.pop();
+        if $cur-y == $e-y && $cur-x == $e-x {
+            last;
+        }
 
-    my $cur-dis = %dis{"{$cur-y},{$cur-x}"};
-    for neighbors($cur-y, $cur-x) -> ($n-y, $n-x) {
-        my $n-k = "{$n-y},{$n-x}";
-        if !(%from{$n-k}:exists) {
-            @front.prepend([($n-y, $n-x),]);
-            %from{$n-k} = [$n-y, $n-x];
-            %dis{$n-k} = $cur-dis + 1;
+        my $cur-dis = %dis{"{$cur-y},{$cur-x}"};
+        for neighbors($cur-y, $cur-x) -> ($n-y, $n-x) {
+            my $n-k = "{$n-y},{$n-x}";
+            if !(%from{$n-k}:exists) {
+                @front.prepend([($n-y, $n-x),]);
+                %from{$n-k} = [$n-y, $n-x];
+                %dis{$n-k} = $cur-dis + 1;
+            }
+        }
+    }
+    return %dis{"{$e-y},{$e-x}"};
+}
+
+my $part-a = calc-dis-to-s($s-y, $s-x);
+my $part-b;
+
+for ^$max-y -> $y {
+    for ^$max-x -> $x {
+        if @hm[$y][$x] == 0 {
+            say "checking {$y, $x}";
+            $part-b min= calc-dis-to-s($y, $x);
         }
     }
 }
-
-my $part-a = %dis{"{$e-y},{$e-x}"};
-my $part-b;
 
 say "A: ", $part-a;
 say "B: ", $part-b;
