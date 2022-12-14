@@ -10,8 +10,8 @@ my $cx = 500; my $cy = 0;
 
 sub display() {
     print "\n";
-    for 0..$max-y -> $y {
-        for 460..540 -> $x {
+    for 0..$max-y+2 -> $y {
+        for 460..580 -> $x {
             my $v = %diag{"{$x},{$y}"};
             if $v {
                 print $v;
@@ -19,6 +19,8 @@ sub display() {
                 print "*";
             } elsif $y == 0 && $x == 500 {
                 print "+";
+            } elsif $y == $max-y+2 {
+                print "_";
             } else {
                 print ".";
             }
@@ -50,13 +52,19 @@ for @lines {
 }
 
 
-my $part-a = 0;
-my $part-b;
+my $part-a;
+my $part-b = 0;
 
 display();
 
-until $cy > $max-y {
-    if %diag{"{$cx},{$cy+1}"}:!exists {
+until False {
+    if $cy+1 == $max-y+2 {
+        $part-a = $part-b if !$part-a;
+        %diag{"{$cx},{$cy}"} = "o";
+        $part-b += 1;
+        $cx = 500;
+        $cy = 0;
+    } elsif %diag{"{$cx},{$cy+1}"}:!exists {
         $cy += 1;
     } elsif %diag{"{$cx-1},{$cy+1}"}:!exists {
         $cy += 1;
@@ -66,16 +74,15 @@ until $cy > $max-y {
         $cx += 1;
     } else {
         %diag{"{$cx},{$cy}"} = "o";
+        $part-b += 1;
         if $cx == 500 && $cy == 0 {
-            exit;
+            last;
         }
         $cx = 500;
         $cy = 0;
-        $part-a += 1;
+        say $part-b if $part-b mod 200 == 0;
     }
 }
-
-$cy-=1;
 
 display();
 
