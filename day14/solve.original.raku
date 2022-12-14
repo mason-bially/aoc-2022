@@ -5,15 +5,13 @@ my @lines = cache open('day14/input').lines;
 
 my %diag;
 my $max-y;
-my $max-x;
-my $min-x;
 
 my $cx = 500; my $cy = 0;
 
 sub display() {
     print "\n";
     for 0..$max-y+2 -> $y {
-        for $min-x-1..$max-x+1 -> $x {
+        for 460..580 -> $x {
             my $v = %diag{"{$x},{$y}"};
             if $v {
                 print $v;
@@ -50,32 +48,22 @@ for @lines {
         }
         $px = $nx; $py = $ny;
         $max-y max= $ny;
-        $max-x max= $nx;
-        $min-x min= $nx;
     }
 }
 
-my $stable;
+
 my $part-a;
 my $part-b = 0;
 
 display();
 
-sub place() {
-    %diag{"{$cx},{$cy}"} = "o";
-    $stable += 1;
-    $cx = 500;
-    $cy = 0;
-}
-
-until %diag{"500,0"}:exists {
+until False {
     if $cy+1 == $max-y+2 {
-        if !$part-a {
-            $part-a = $stable;
-            say "A: ", $part-a;
-            display();
-        }
-        place();
+        $part-a = $part-b if !$part-a;
+        %diag{"{$cx},{$cy}"} = "o";
+        $part-b += 1;
+        $cx = 500;
+        $cy = 0;
     } elsif %diag{"{$cx},{$cy+1}"}:!exists {
         $cy += 1;
     } elsif %diag{"{$cx-1},{$cy+1}"}:!exists {
@@ -85,12 +73,20 @@ until %diag{"500,0"}:exists {
         $cy += 1;
         $cx += 1;
     } else {
-        place();
+        %diag{"{$cx},{$cy}"} = "o";
+        $part-b += 1;
+        if $cx == 500 && $cy == 0 {
+            last;
+        }
+        $cx = 500;
+        $cy = 0;
+        say $part-b if $part-b mod 200 == 0;
     }
 }
 
 display();
-$part-b = $stable;
+
+say %diag.values.grep(* eq "o").elems;
 
 say "A: ", $part-a;
 say "B: ", $part-b;
