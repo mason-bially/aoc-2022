@@ -1,59 +1,76 @@
 use v6;
 use lib $*PROGRAM.parent.resolve.dirname;
+use util::vec2;
 
 my @lines = cache open('day14/input').lines;
 
-my %diag;
-my $max-y;
-my $max-x;
-my $min-x;
+my $max = v2(500,0);
+my $min = v2(500,0);
 
-my $cx = 500; my $cy = 0;
-
-sub display() {
-    print "\n";
-    for 0..$max-y+2 -> $y {
-        for $min-x-1..$max-x+1 -> $x {
-            my $v = %diag{"{$x},{$y}"};
-            if $v {
-                print $v;
-            } elsif $y == $cy && $x == $cx {
-                print "*";
-            } elsif $y == 0 && $x == 500 {
-                print "+";
-            } elsif $y == $max-y+2 {
-                print "_";
-            } else {
-                print ".";
-            }
-        }
-        print "\n";
+for @lines {
+    for .split(" -> ") {
+        my ($nx, $ny) = .split(",")>>.Int;
+        my $v = v2($nx, $ny);
+        $max max= $v;
+        $min min= $v;
     }
-    print "\n";
+}
+
+enum Cell (
+    Air => 0,
+    Sand => 1,
+    Wall => 2
+);
+
+my @a = [];
+
+for $max.add(2, 3).grid-iter():start($min.add(-1, 0)) {
+    $_.index(@a) = Air;
 }
 
 for @lines {
     my $px; my $py;
     for .split(" -> ") {
         my ($nx, $ny) = .split(",")>>.Int;
-
         if $px && $py {
             if $px eq $nx {
                 for $py...$ny -> $y {
-                    %diag{"{$px},{$y}"} = '#';
+                    Vec2.new($px, $y).index(@a) = Wall;
                 }
             } elsif $py eq $ny {
                 for $px...$nx -> $x {
-                    %diag{"{$x},{$py}"} = '#';
+                    Vec2.new($x, $py).index(@a) = Wall;
                 }
             }
         }
         $px = $nx; $py = $ny;
-        $max-y max= $ny;
-        $max-x max= $nx;
-        $min-x min= $nx;
     }
 }
+
+my MutVec2 $c = v2(500,0):mut;
+
+sub display() {
+    my $py;
+    for $max.add(2, 3).grid-iter():start($min.add(-1, 0)) {
+        print "\n" if $py != .y;
+        if .y == $c.y && .x == $c.x {
+            print "*";
+        } elsif .y == 0 && .x == 500 {
+            print "+";
+        } elsif .y == $max.y+2 {
+            print "_";
+        } else {
+            given .index(@a) {
+                when Air { print "." }
+                when Wall { print "#" }
+                when Sand { print "o" }
+            }
+        }
+        $py = .y;
+    }
+    print "\n";
+}
+
 
 my $stable;
 my $part-a;
@@ -62,28 +79,29 @@ my $part-b = 0;
 display();
 
 sub place() {
-    %diag{"{$cx},{$cy}"} = "o";
+    $c.index(@a) = Sand;
     $stable += 1;
-    $cx = 500;
-    $cy = 0;
+    $c.x = 500;
+    $c.y = 0;
 }
 
-until %diag{"500,0"}:exists {
-    if $cy+1 == $max-y+2 {
+my $src = Vec2.new(500, 0);
+until $src.index(@a) != Air {
+    if $c.y+1 == $max.y+2 {
         if !$part-a {
             $part-a = $stable;
             say "A: ", $part-a;
             display();
         }
         place();
-    } elsif %diag{"{$cx},{$cy+1}"}:!exists {
-        $cy += 1;
-    } elsif %diag{"{$cx-1},{$cy+1}"}:!exists {
-        $cy += 1;
-        $cx -= 1;
-    } elsif %diag{"{$cx+1},{$cy+1}"}:!exists {
-        $cy += 1;
-        $cx += 1;
+    } elsif Vec2.new($c.x, $c.y+1).index(@a) == Air {
+        $c.y += 1;
+    } elsif Vec2.new($c.x-1, $c.y+1).index(@a)  == Air {
+        $c.y += 1;
+        $c.x -= 1;
+    } elsif Vec2.new($c.x+1, $c.y+1).index(@a)  == Air {
+        $c.y += 1;
+        $c.x += 1;
     } else {
         place();
     }
